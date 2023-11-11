@@ -1,0 +1,37 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="10;url=qirx.html">
+    <meta charset="UTF-8"> <!-- Ajout de la balise meta pour spécifier l'encodage UTF-8 -->
+    <style>
+        h2.green-text {
+            color: green;
+            font-weight: bold;
+            font-size: 26px;
+        }
+        
+        a.link-text {
+            font-size: 26px;
+        }
+    </style>
+    <script>
+        function refreshImage() {
+            const image = document.getElementById("qirx-image");
+            const timestamp = new Date().getTime();
+            const imageUrl = `qirx.png?timestamp=${timestamp}`;
+            image.src = imageUrl;
+        }
+
+        // Appeler la fonction refreshImage après 10 secondes
+        setTimeout(refreshImage, 10000);
+    </script>
+</head>
+<body>
+    <img id="qirx-image" src="qirx.png" alt="qirx">
+    <h2 class="green-text">Pour visualiser les logs, cliquer sur le lien ci-dessous</h2>
+    <ul>
+        <li><a href="/QIRX/qirxtiilogs.html" class="link-text">Afficher les logs et les TII correspondants</a></li> 
+    </ul>
+    <h2><i>Page actualisée toutes les 10 secondes</i></h2>
+</body>
+</html>
