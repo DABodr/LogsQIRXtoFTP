@@ -1,9 +1,20 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="10;url=qirx.html">
-    <meta charset="UTF-8"> <!-- Ajout de la balise meta pour spécifier l'encodage UTF-8 -->
+    <meta http-equiv="refresh" content="10">
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Comfortaa', sans-serif;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-image: url('/QIRX/backgrnddab.jpeg'); /* Assurez-vous que le chemin est correct */
+            background-size: cover; /* Pour couvrir toute la page */
+            background-repeat: no-repeat; /* Pour éviter la répétition de l'image */
+            background-attachment: fixed; /* L'image d'arrière-plan est fixe lors du défilement */
+        }
         h2.green-text {
             color: green;
             font-weight: bold;
@@ -22,16 +33,19 @@
             image.src = imageUrl;
         }
 
-        // Appeler la fonction refreshImage après 10 secondes
         setTimeout(refreshImage, 10000);
     </script>
 </head>
 <body>
-    <img id="qirx-image" src="qirx.png" alt="qirx">
-    <h2 class="green-text">Pour visualiser les logs, cliquer sur le lien ci-dessous</h2>
+    <img id="qirx-image" src="qirx.png" alt="Image QIRX">
+    <h2 class="green-text">
+        Pour visualiser les logs, cliquer sur le lien ci-dessous
+    </h2>
     <ul>
         <li><a href="/QIRX/qirxtiilogs.html" class="link-text">Afficher les logs et les TII correspondants</a></li> 
     </ul>
     <h2><i>Page actualisée toutes les 10 secondes</i></h2>
+        <img src="logodab.png" alt="Logo DAB+" style="vertical-align: middle; margin-right: 10px; "width="200" height="auto">
 </body>
 </html>
+
