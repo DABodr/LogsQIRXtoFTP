@@ -4,11 +4,17 @@ import pyautogui
 import schedule
 import time
 import glob
+import csv
+import pandas as pd
+import io
 
 # Paramètres FTP
-ftp_server = "Your_FTP_URL"
-ftp_username = "username"
-ftp_password = "password"
+ftp_server = "adresse_serveur_ftp"
+ftp_username = "login_ftp"
+ftp_password = "mdp_ftp"
+
+# Chemin d'accès base TII Locale
+base_tii = r'C:\Users\user_windows\AppData\Local\qirx4\Database\dabtx_data.csv'
 
 # Dossier unifié pour les sorties (captures d'écran et fichiers HTML)
 dossier_sortie_local = r"C:\QIRX_output"
@@ -20,10 +26,15 @@ nom_fichier_image = "qirx.png"
 dossier_FTP_distant = "/QIRX/"
 
 # Chemin du dossier pour la fonction txt_to_html
-chemin_dossier_txt_to_html = r'C:\Users\Your_User\AppData\Local\qirx4\TIILogger'
+chemin_dossier_txt_to_html = r'C:\Users\user_windows\AppData\Local\qirx4\TIILogger'
 
 # Nom du fichier HTML à créer
 nom_fichier_html = "qirxtiilogs.html"
+
+# Chargement base TII en RAM
+with open(base_tii, 'r', encoding='utf-8', errors='ignore') as tiiFile:
+    reader = csv.reader(tiiFile , delimiter=';')
+    tiiTab = list(reader)
 
 # Vérification de l'existence du dossier, le créer si nécessaire
 def verifier_et_creer_dossier():
@@ -80,7 +91,6 @@ def envoyer_image_ftp():
 # Fonction pour convertir les fichiers .txt en fichiers HTML
 def txt_to_html():
     verifier_et_creer_dossier()
-
     txt_files = sorted(glob.glob(os.path.join(chemin_dossier_txt_to_html, '*.txt')), key=os.path.getmtime, reverse=True)
 
     if txt_files:
@@ -88,31 +98,50 @@ def txt_to_html():
         output_path = os.path.join(dossier_sortie_local, nom_fichier_html)
 
         with open(latest_txt_file, 'r') as txt_file, open(output_path, 'w') as html_file:
+            # On ignore les 3 premières lignes du ficheir TII
+            for _ in range(3):
+                next(txt_file)
+
+            # On supprime les espaces, et on gère la séparation par une tabulation
+            column_names = next(txt_file).split("\t")
+            column_names = [x.strip(' ') for x in column_names]
+            next(txt_file)
+
+            # DataFrame => Dict, on supprime les timestamp null et on trie en fonction du TII
+            df = pd.read_csv(txt_file, delimiter='\t', header=None, names=column_names, skiprows=[0,1,2,3,4])
+            df = df[df['Date/Time'] != '0001-01-01  00:00:00 Z']
+            df['MER'] = pd.to_numeric(df['MER'])
+            df['M_Id'] = pd.to_numeric(df['M_Id'])
+            df['S_Id'] = pd.to_numeric(df['S_Id'])
+            df_sorted = df.sort_values(['Date/Time', 'MER', 'M_Id', 'S_Id', 'Chn', 'EId'], ascending=[False, True, True, True, False, False])
+            result = df_sorted.groupby(['M_Id', 'S_Id']).first()
+            print(result)
+            
+            # Génération du tableau final
             html_file.write("<!DOCTYPE html>\n<html>\n<head>\n<title>QIRX Logs</title>\n")
             html_file.write("<style>td:nth-child(1) { width: auto; white-space: nowrap; }</style>\n")
             html_file.write("<style>td:nth-child(6), td:nth-child(7) { background-color: #FFFF00; }</style>\n")
             html_file.write("</head>\n<body>\n")
             html_file.write("<table border='1' style='table-layout: fixed;'>\n")
+            html_file.write("<tr><td>Date/Time</td><td>Chn</td><td>EId</td><td>Label</td><td>MER</td><td>M_Id</td><td>S_Id</td><td>km abs</td><td>Strength</td><td>TX</td></tr>")
 
-            line_count = 0
-            for line in txt_file:
-                line = line.strip()
-                cells = line.split('\t')
-
-                if line_count > 2:
-                    html_file.write("<tr>\n")
-                    for idx, cell in enumerate(cells, 1):
-                        if idx not in (6, 7, 10) and not (13 <= idx <= 17):
-                            if 2 <= idx <= 5:
-                                cell = f"<b>{cell}</b>"
-                            html_file.write(f"<td>{cell}</td>\n")
-                    html_file.write("</tr>\n")
-                line_count += 1
+            # Recherche du TII dans la base
+            for (M_Id, S_Id), rowOrig in result.iterrows():
+                row = rowOrig.to_dict()
+                found = False
+                for r in tiiTab:
+                    mainSub = str(M_Id).rjust(2,"0").strip() + str(S_Id).rjust(2,"0").strip()
+                    if(row['Chn'] == r[2] and str(row['EId']) == r[4] and mainSub == r[5]):
+                        tx = r[6]
+                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td>" + row['Chn'] + "</td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + "</td></tr>\n")
+                        found = True
+                        break
+                if(found == False):
+                    html_file.write("<tr><td>" + row['Date/Time'] + "</td><td>" + row['Chn'] + "</td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
 
             html_file.write("</table>\n</body>\n</html>")
 
         print(f'HTML créé : {nom_fichier_html}')
-
     else:
         print('Aucun fichier .txt trouvé.')
 
@@ -125,7 +154,7 @@ def envoyer_fichier_ftp():
         ftp.login(ftp_username, ftp_password)
 
         fichier_local = os.path.join(dossier_sortie_local, nom_fichier_html)
-        chemin_FTP_distant = f"/QIRX/{nom_fichier_html}"
+        chemin_FTP_distant = f"/{dossier_FTP_distant}/{nom_fichier_html}"
 
         with open(fichier_local, "rb") as f:
             ftp.storbinary("STOR " + chemin_FTP_distant, f)
@@ -138,7 +167,11 @@ def envoyer_fichier_ftp():
         print("Erreur envoi FTP du fichier HTML : " + str(e))
 
 # Initialisation du script
-print("Démarrage du script. Première action dans 30 secondes.")
+print("Démarrage du script.")
+capture_ecran_et_enregistrer()
+envoyer_image_ftp()
+txt_to_html()
+envoyer_fichier_ftp()
 
 # Planification des tâches
 schedule.every(30).seconds.do(capture_ecran_et_enregistrer)
@@ -150,3 +183,4 @@ schedule.every(30).seconds.do(envoyer_fichier_ftp)
 while True:
     schedule.run_pending()
     time.sleep(1)
+tiiFile.close()
