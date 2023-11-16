@@ -18,6 +18,7 @@ pip install schedule
 pip install time
 pip install glob2
 pip install pandas
+pip install Pillow
 
 5 - Run LogsQIRXtoFTP.py
 
