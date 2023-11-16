@@ -8,7 +8,7 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 
 2 - Open with file editor LogsQIRXtoFTP.py and edit your FTP address, name and password, save it.
 
-3 - Save "logodab.png", "backgrnddab.jpeg" and "qirx.html" files to your QIRX/ FTP folder
+3 - Copy "logodab.png", "backgrnddab.jpeg" and "qirx.html" files to your QIRX/ FTP folder
 
 4 - Install Library:
 
