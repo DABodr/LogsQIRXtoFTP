@@ -15,7 +15,6 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 pip install os-sys
 pip install pyautogui
 pip install schedule
-pip install time
 pip install glob2
 pip install pandas
 pip install Pillow
