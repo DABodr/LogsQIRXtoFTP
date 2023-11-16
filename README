@@ -2,7 +2,15 @@ Take a windows PC screenshot each 30 seconds (let QIRX running in front) and sen
 
 New directory C:\QIRX_output is create for save PNG picture and HTML file.
 
-Library:
+* Install:
+
+1 - Download git and unzip
+
+2 - Open with file editor LogsQIRXtoFTP.py and edit your FTP address, name and password, save it.
+
+3 - Save "logodab.png" and "backgrnddab.jpeg" to your QIRX/ FTP folder
+
+4 - Install Library:
 
 pip install ftplib
 pip install os-sys
@@ -11,3 +19,7 @@ pip install schedule
 pip install time
 pip install glob2
 pip install pandas
+
+5 - Run LogsQIRXtoFTP.py
+
+6 - Go to http://Your_Server_address/QIRX/qirx.html
