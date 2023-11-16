@@ -119,8 +119,9 @@ def txt_to_html():
             
             # Génération du tableau final
             html_file.write("<!DOCTYPE html>\n<html>\n<head>\n<title>QIRX Logs</title>\n")
+            html_file.write("<style>table { background-color: #e0ffe0; }</style>\n")
             html_file.write("<style>td:nth-child(1) { width: auto; white-space: nowrap; }</style>\n")
-            html_file.write("<style>td:nth-child(6), td:nth-child(7) { background-color: #FFFF00; }</style>\n")
+            html_file.write("<style>td:nth-child(6), td:nth-child(7), td:nth-child(10) { background-color: #FFFF00; }</style>\n")
             html_file.write("</head>\n<body>\n")
             html_file.write("<table border='1' style='table-layout: fixed;'>\n")
             html_file.write("<tr><td>Date/Time</td><td>Chn</td><td>EId</td><td>Label</td><td>MER</td><td>M_Id</td><td>S_Id</td><td>km abs</td><td>Strength</td><td>TX</td></tr>")
