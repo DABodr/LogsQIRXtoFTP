@@ -13,8 +13,11 @@ ftp_server = "adresse_serveur_ftp"
 ftp_username = "login_ftp"
 ftp_password = "mdp_ftp"
 
+# Obtenir le nom d'utilisateur actuel Windows
+username = os.getlogin()  # ou os.environ['USERNAME']
+
 # Chemin d'accès base TII Locale
-base_tii = r'C:\Users\user_windows\AppData\Local\qirx4\Database\dabtx_data.csv'
+base_tii = rf'C:\Users\{username}\AppData\Local\qirx4\Database\dabtx_data.csv'
 
 # Dossier unifié pour les sorties (captures d'écran et fichiers HTML)
 dossier_sortie_local = r"C:\QIRX_output"
@@ -26,7 +29,7 @@ nom_fichier_image = "qirx.png"
 dossier_FTP_distant = "/QIRX/"
 
 # Chemin du dossier pour la fonction txt_to_html
-chemin_dossier_txt_to_html = r'C:\Users\user_windows\AppData\Local\qirx4\TIILogger'
+chemin_dossier_txt_to_html = rf'C:\Users\{username}\AppData\Local\qirx4\TIILogger'
 
 # Nom du fichier HTML à créer
 nom_fichier_html = "qirxtiilogs.html"
