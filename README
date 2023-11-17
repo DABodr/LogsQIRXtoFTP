@@ -1,3 +1,5 @@
+![Screenshot of a logo slide](https://github.com/DABodr/) 
+
 Take a windows PC screenshot each 30 seconds (let QIRX running in front) and send QIRX logs from C:\Users\Your_User\AppData\Local\qirx4\TIILogger to FTP server in QIRX/ directory.
 
 New directory C:\QIRX_output is create for save PNG picture and HTML file.
