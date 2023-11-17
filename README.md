@@ -1,4 +1,5 @@
-![Screenshot of a logo slide](https://github.com/DABodr/LogsQIRXtoFTP/blob/main/screenshotLogs.png) 
+![Screenshot QIRX](https://github.com/DABodr/LogsQIRXtoFTP/blob/main/screenshotLogs.png) 
+![Screenshot logs](https://github.com/DABodr/LogsQIRXtoFTP/blob/main/screenshotLogs.png) 
 
 Take a windows PC screenshot each 30 seconds (let QIRX running in front) and send QIRX logs from C:\Users\Your_User\AppData\Local\qirx4\TIILogger to FTP server in QIRX/ directory.
 
