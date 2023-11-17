@@ -4,7 +4,7 @@ QIRX screenshot webpage:
 
 ![Screenshot QIRX](https://github.com/DABodr/LogsQIRXtoFTP/blob/main/screenshotQIRX.png) 
 
-TII log from QIRX:
+TII logs from QIRX:
 
 ![Screenshot logs](https://github.com/DABodr/LogsQIRXtoFTP/blob/main/screenshotLogs.png)
 
