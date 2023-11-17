@@ -6,12 +6,13 @@ import time
 import glob
 import csv
 import pandas as pd
+from datetime import datetime, timedelta
 import io
 
 # Paramètres FTP
-ftp_server = "adresse_serveur_ftp"
-ftp_username = "login_ftp"
-ftp_password = "mdp_ftp"
+ftp_server = "ton_serveur_FeuTeuPeu"
+ftp_username = "ton_user"
+ftp_password = "ton_MeuDeuPeu"
 
 # Obtenir le nom d'utilisateur actuel Windows
 username = os.getlogin()  # ou os.environ['USERNAME']
@@ -99,9 +100,8 @@ def txt_to_html():
     if txt_files:
         latest_txt_file = txt_files[0]
         output_path = os.path.join(dossier_sortie_local, nom_fichier_html)
-
-        with open(latest_txt_file, 'r') as txt_file, open(output_path, 'w') as html_file:
-            # On ignore les 3 premières lignes du ficheir TII
+        with open(latest_txt_file, 'r', encoding="UTF-8") as txt_file, open(output_path, 'w') as html_file:
+            # On ignore les 3 premières lignes du fichier TII
             for _ in range(3):
                 next(txt_file)
 
@@ -116,32 +116,55 @@ def txt_to_html():
             df['MER'] = pd.to_numeric(df['MER'])
             df['M_Id'] = pd.to_numeric(df['M_Id'])
             df['S_Id'] = pd.to_numeric(df['S_Id'])
+            df['Chn'] = df['Chn'].apply(lambda x: "0" + str(x) if len(str(x)) == 2 else x) #On ajoute un 0 sur les canaux 5A->9D pour faciliter le tri
             df_sorted = df.sort_values(['Date/Time', 'MER', 'M_Id', 'S_Id', 'Chn', 'EId'], ascending=[False, True, True, True, False, False])
-            result = df_sorted.groupby(['M_Id', 'S_Id']).first()
+            result = df_sorted.groupby(['Chn','M_Id', 'S_Id']).first()
             print(result)
             
             # Génération du tableau final
             html_file.write("<!DOCTYPE html>\n<html>\n<head>\n<title>QIRX Logs</title>\n")
-            html_file.write("<style>table { background-color: #e0ffe0; }</style>\n")
+            html_file.write("<style>table { background-color: #e0ffe0; font-family:'Arial'}</style>\n")
             html_file.write("<style>td:nth-child(1) { width: auto; white-space: nowrap; }</style>\n")
             html_file.write("<style>td:nth-child(6), td:nth-child(7), td:nth-child(10) { background-color: #FFFF00; }</style>\n")
             html_file.write("</head>\n<body>\n")
             html_file.write("<table border='1' style='table-layout: fixed;'>\n")
-            html_file.write("<tr><td>Date/Time</td><td>Chn</td><td>EId</td><td>Label</td><td>MER</td><td>M_Id</td><td>S_Id</td><td>km abs</td><td>Strength</td><td>TX</td></tr>")
+            html_file.write("<tr><td>Date & Heure du Scan</td><td>Bloc</td><td>EId</td><td>Label</td><td>MER</td><td>M_Id</td><td>S_Id</td><td>Dist. km</td><td>Force</td><td>TX (+ Puissance)</td></tr>")
 
             # Recherche du TII dans la base
-            for (M_Id, S_Id), rowOrig in result.iterrows():
+            lhFound = False
+            for (Chn,M_Id, S_Id), rowOrig in result.iterrows():
+                if(Chn[0] == "0"):
+                    Chn = Chn[1:]
                 row = rowOrig.to_dict()
+                color = "darkgreen"
+                colorFont = "white"
                 found = False
+                if(row['MER'] < 15):
+                    color = "darkorange"
+                    colorFont = "black"
+                if(row['MER'] < 10):
+                    color = "red"
+                    colorFont = "white"
+                
+                timestampUtc = datetime.strptime(row['Date/Time'], '%Y-%m-%d %H:%M:%S Z')
+                timestampCet = timestampUtc + timedelta(hours=1)
+                row['Date/Time'] = timestampCet.strftime('%Y-%m-%d %H:%M:%S')
+
                 for r in tiiTab:
                     mainSub = str(M_Id).rjust(2,"0").strip() + str(S_Id).rjust(2,"0").strip()
-                    if(row['Chn'] == r[2] and str(row['EId']) == r[4] and mainSub == r[5]):
+                    if(Chn == r[2] and str(row['EId']) == r[4] and mainSub == r[5]):
                         tx = r[6]
-                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td>" + row['Chn'] + "</td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + "</td></tr>\n")
+                        pwr = str(round(float(r[13]), 2))
+                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + " (" + pwr +" kW)</td></tr>\n")
                         found = True
                         break
                 if(found == False):
-                    html_file.write("<tr><td>" + row['Date/Time'] + "</td><td>" + row['Chn'] + "</td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
+                    if(str(row['EId']) != "F02B"):
+                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
+                    else:
+                        if(lhFound == False):
+                            html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>-</td><td>-</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>Le Havre/75 Rue Albert Copieux (4.0 kW)</td></tr>\n")
+                            lhFound = True
 
             html_file.write("</table>\n</body>\n</html>")
 
@@ -178,8 +201,8 @@ txt_to_html()
 envoyer_fichier_ftp()
 
 # Planification des tâches
-schedule.every(30).seconds.do(capture_ecran_et_enregistrer)
-schedule.every(30).seconds.do(envoyer_image_ftp)
+schedule.every(15).seconds.do(capture_ecran_et_enregistrer)
+schedule.every(15).seconds.do(envoyer_image_ftp)
 schedule.every(30).seconds.do(txt_to_html)
 schedule.every(30).seconds.do(envoyer_fichier_ftp)
 
