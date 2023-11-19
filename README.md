@@ -12,8 +12,7 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 
 * Install:
 
-1- Download and install latest python software: [
-](https://www.python.org/downloads/)
+1- Download and install latest python software: https://www.python.org/downloads/
 
 1 - Download git and unzip
 
