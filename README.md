@@ -20,7 +20,7 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 
 4 - Install Library:
 
-*Run cmd command
+*Run cmd command   
 *pip install os-sys pyautogui schedule glob2 pandas Pillow
 
 5 - Run LogsQIRXtoFTP.py
