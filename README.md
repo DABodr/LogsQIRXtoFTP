@@ -14,7 +14,7 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 
 1- Download and install latest python software: https://www.python.org/downloads/
 
-2 - Download git and unzip
+2 - Download git: https://github.com/DABodr/LogsQIRXtoFTP.git and unzip
 
 3 - Install Library: Run install.bat
 
