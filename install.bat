@@ -14,14 +14,3 @@ if %ERRORLEVEL% neq 0 (
     echo L'installation de pip a échoué.
     exit /b %ERRORLEVEL%
 )
-
-REM Installer les bibliothèques nécessaires
-echo Installation des bibliothèques Python nécessaires...
-
-REM Liste des paquets à installer
-set PACKAGES=pyautogui schedule glob2 pandas Pillow
-
-REM Installer chaque paquet individuellement pour gérer les échecs
-for %%p in (%PACKAGES%) do (
-    echo Installation de %%p...
-    pip install %%p
