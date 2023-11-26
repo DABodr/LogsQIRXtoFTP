@@ -154,7 +154,10 @@ def txt_to_html():
                     mainSub = str(M_Id).rjust(2,"0").strip() + str(S_Id).rjust(2,"0").strip()
                     if(Chn == r[2] and str(row['EId']) == r[4] and mainSub == r[5]):
                         tx = r[6]
-                        pwr = str(round(float(r[13]), 2))
+                        try:
+                            pwr = str(round(float(r[13]), 2))
+                        except:
+                            pwr=""
                         html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + " (" + pwr +" kW)</td></tr>\n")
                         found = True
                         break
