@@ -10,15 +10,15 @@ from datetime import datetime, timedelta
 import io
 
 # Paramètres FTP
-ftp_server = "ton_serveur_FeuTeuPeu"
-ftp_username = "ton_user"
-ftp_password = "ton_MeuDeuPeu"
+ftp_server = "FTPperso.free.fr"
+ftp_username = "aurelien.picart"
+ftp_password = "4d967f6c"
 
 # Obtenir le nom d'utilisateur actuel Windows
 username = os.getlogin()  # ou os.environ['USERNAME']
 
 # Chemin d'accès base TII Locale
-base_tii = rf'C:\Users\{username}\AppData\Local\qirx4\Database\dabtx_data.csv'
+base_tii = rf'C:\Users\{username}\Desktop\dabtx_data.csv'
 
 # Dossier unifié pour les sorties (captures d'écran et fichiers HTML)
 dossier_sortie_local = r"C:\QIRX_output"
@@ -157,17 +157,18 @@ def txt_to_html():
                         try:
                             pwr = str(round(float(r[13]), 2))
                         except:
-                            pwr=""
+                            pwr=""  
                         html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + " (" + pwr +" kW)</td></tr>\n")
                         found = True
                         break
-                if(found == False):
-                    if(str(row['EId']) != "F02B"):
-                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
-                    else:
-                        if(lhFound == False):
-                            html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>-</td><td>-</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>Le Havre/75 Rue Albert Copieux (4.0 kW)</td></tr>\n")
-                            lhFound = True
+                # Décommenter ces lignes pour laisser apparaitre les TII non listés dans la base de données    
+                #if(found == False):
+                    #if(str(row['EId']) != "F017"):
+                        #html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
+                    #else:
+                        #if(lhFound == False):
+                            #html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>-</td><td>-</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>Fresnicourt-le-Dolmen (4.0 kW)</td></tr>\n")
+                            #lhFound = True
 
             html_file.write("</table>\n</body>\n</html>")
 
