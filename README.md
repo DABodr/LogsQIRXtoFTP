@@ -27,3 +27,5 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 7 - Run LogsQIRXtoFTP.py
 
 8 - Go to http://Your_Server_address/QIRX/qirx.html
+
+* Uncomment line 164 to 170 to show all TII (Even those that are not available in the database.)
