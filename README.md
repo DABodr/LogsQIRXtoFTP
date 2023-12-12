@@ -28,4 +28,4 @@ New directory C:\QIRX_output is create for save PNG picture and HTML file.
 
 8 - Go to http://Your_Server_address/QIRX/qirx.html
 
-* Uncomment lines 164 to 170 for show all TII (Even those that are not available in the database.)
+* Uncomment lines 164 to 170 to show all TII (Even those that are not available in the database.)
