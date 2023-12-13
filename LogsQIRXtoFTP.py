@@ -10,9 +10,9 @@ from datetime import datetime, timedelta
 import io
 
 # Paramètres FTP
-ftp_server = "FTPperso.free.fr"
-ftp_username = "aurelien.picart"
-ftp_password = "4d967f6c"
+ftp_server = "FTP Server"
+ftp_username = "USER"
+ftp_password = "PASS"
 
 # Obtenir le nom d'utilisateur actuel Windows
 username = os.getlogin()  # ou os.environ['USERNAME']
