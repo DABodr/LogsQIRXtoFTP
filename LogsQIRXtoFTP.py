@@ -18,7 +18,7 @@ ftp_password = "PASS"
 username = os.getlogin()  # ou os.environ['USERNAME']
 
 # Chemin d'accès base TII Locale
-base_tii = rf'C:\Users\{username}\Desktop\dabtx_data.csv'
+base_tii = rf'C:\Users\{username}\AppData\Local\qirx4\Database\dabtx_data.csv'
 
 # Dossier unifié pour les sorties (captures d'écran et fichiers HTML)
 dossier_sortie_local = r"C:\QIRX_output"
