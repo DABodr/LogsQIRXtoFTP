@@ -10,9 +10,9 @@ from datetime import datetime, timedelta
 import io
 
 # Paramètres FTP
-ftp_server = "FTP Server"
-ftp_username = "USER"
-ftp_password = "PASS"
+ftp_server = "Serveur"
+ftp_username = "User"
+ftp_password = "Pass"
 
 # Obtenir le nom d'utilisateur actuel Windows
 username = os.getlogin()  # ou os.environ['USERNAME']
@@ -86,12 +86,12 @@ def envoyer_image_ftp():
         print(f"Image copiée : {nom_fichier_image}")
 
         ftp.quit()
-        print("Image envoyée en FTP. Prochaine capture dans 30 secondes.")
+        print("Image envoyée en FTP. Prochaine capture dans 15 secondes.")
 
     except Exception as e:
         print("Erreur envoi image : " + str(e))
-        print("Nouvelle tentative dans 30 secondes.")
-
+        print("Nouvelle tentative dans 15 secondes.")
+ 
 # Fonction pour convertir les fichiers .txt en fichiers HTML
 def txt_to_html():
     verifier_et_creer_dossier()
@@ -114,10 +114,11 @@ def txt_to_html():
             df = pd.read_csv(txt_file, delimiter='\t', header=None, names=column_names, skiprows=[0,1,2,3,4])
             df = df[df['Date/Time'] != '0001-01-01  00:00:00 Z']
             df['MER'] = pd.to_numeric(df['MER'])
+            df['CNR'] = pd.to_numeric(df['CNR'])
             df['M_Id'] = pd.to_numeric(df['M_Id'])
             df['S_Id'] = pd.to_numeric(df['S_Id'])
             df['Chn'] = df['Chn'].apply(lambda x: "0" + str(x) if len(str(x)) == 2 else x) #On ajoute un 0 sur les canaux 5A->9D pour faciliter le tri
-            df_sorted = df.sort_values(['Date/Time', 'MER', 'M_Id', 'S_Id', 'Chn', 'EId'], ascending=[False, True, True, True, False, False])
+            df_sorted = df.sort_values(['Date/Time', 'CNR', 'MER', 'M_Id', 'S_Id', 'Chn', 'EId'], ascending=[False, True, True, True, True, False, False])
             result = df_sorted.groupby(['Chn','M_Id', 'S_Id']).first()
             print(result)
             
@@ -125,10 +126,10 @@ def txt_to_html():
             html_file.write("<!DOCTYPE html>\n<html>\n<head>\n<title>QIRX Logs</title>\n")
             html_file.write("<style>table { background-color: #e0ffe0; font-family:'Arial'}</style>\n")
             html_file.write("<style>td:nth-child(1) { width: auto; white-space: nowrap; }</style>\n")
-            html_file.write("<style>td:nth-child(6), td:nth-child(7), td:nth-child(10) { background-color: #FFFF00; }</style>\n")
+            html_file.write("<style>td:nth-child(7), td:nth-child(8), td:nth-child(11) { background-color: #FFFF00; }</style>\n")
             html_file.write("</head>\n<body>\n")
             html_file.write("<table border='1' style='table-layout: fixed;'>\n")
-            html_file.write("<tr><td>Date & Heure du Scan</td><td>Bloc</td><td>EId</td><td>Label</td><td>MER</td><td>M_Id</td><td>S_Id</td><td>Dist. km</td><td>Force</td><td>TX (+ Puissance)</td></tr>")
+            html_file.write("<tr><td>Date & Heure du Scan</td><td>Bloc</td><td>EId</td><td>Label</td><td>CNR</td><td>MER</td><td>M_Id</td><td>S_Id</td><td>Dist. km</td><td>Force</td><td>TX (+ Puissance)</td></tr>")
 
             # Recherche du TII dans la base
             lhFound = False
@@ -145,6 +146,16 @@ def txt_to_html():
                 if(row['MER'] < 10):
                     color = "red"
                     colorFont = "white"
+                    
+                colorCNR = "darkgreen"
+                colorFontCNR = "white"
+                found = False
+                if(row['CNR'] < 15):
+                    colorCNR = "darkorange"
+                    colorFontCNR = "black"
+                if(row['CNR'] < 10):
+                    colorCNR = "red"
+                    colorFontCNR = "white"
                 
                 timestampUtc = datetime.strptime(row['Date/Time'], '%Y-%m-%d %H:%M:%S Z')
                 timestampCet = timestampUtc + timedelta(hours=1)
@@ -158,17 +169,17 @@ def txt_to_html():
                             pwr = str(round(float(r[13]), 2))
                         except:
                             pwr=""  
-                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + " (" + pwr +" kW)</td></tr>\n")
+                        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:160px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+colorCNR+"; color: "+colorFontCNR+"'>" + str(row['CNR']) + "</td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>" + tx + " (" + pwr +" kW)</td></tr>\n")
                         found = True
                         break
-                # Décommenter ces lignes pour laisser apparaitre les TII non listés dans la base de données    
+                #Décommenter ces lignes pour laisser apparaitre les TII non listés dans la base de données    
                 #if(found == False):
-                    #if(str(row['EId']) != "F017"):
-                        #html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
-                    #else:
-                        #if(lhFound == False):
-                            #html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>-</td><td>-</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>Fresnicourt-le-Dolmen (4.0 kW)</td></tr>\n")
-                            #lhFound = True
+                #    if(str(row['EId']) != "F02B"):
+                #        html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+colorCNR+"; color: "+colorFontCNR+"'>" + str(row['CNR']) + "</td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>" + str(M_Id) +"</td><td>" + str(S_Id) + "</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td></td></tr>\n")
+                #    else:
+                #        if(lhFound == False):
+                #            html_file.write("<tr><td>" + row['Date/Time'] + "</td><td><b>" + Chn + "</b></td><td>" + str(row['EId']) + "</td><td style='font-family:courier;width:150px;' ><b>" + row['Label'][1:-1] + "</b></td><td style='background-color:"+colorCNR+"; color: "+colorFontCNR+"'>" + str(row['CNR']) + "</td><td style='background-color:"+color+"; color: "+colorFont+"'>" + str(row['MER']) + "</td><td>-</td><td>-</td><td>" + str(row['km abs']) + "</td><td>" + str(round(row['Stren']*100,2)) + " %</td><td>Le Havre/75 Rue Albert Copieux (4.0 kW)</td></tr>\n")
+                #            lhFound = True
 
             html_file.write("</table>\n</body>\n</html>")
 
